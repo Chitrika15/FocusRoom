@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run FocusRoom (Main)",
+            "request": "launch",
+            "mainClass": "com.focusroom.Main",
+            "projectName": "focusroom"
+        },
+        {
+            "type": "java",
+            "name": "Run All Tests (FocusRoomAppTest)",
+            "request": "launch",
+            "mainClass": "com.focusroom.FocusRoomAppTest",
+            "projectName": "focusroom"
+        }
+    ]
+}

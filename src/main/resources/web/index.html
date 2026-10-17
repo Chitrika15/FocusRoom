@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusRoom – Virtual Study Rooms</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">🎯</div>
+                <div>
+                    <h1 class="brand-title">FocusRoom</h1>
+                    <p class="brand-subtitle">Virtual Study Rooms & Collaborative Focus</p>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <span class="db-pill online" id="dbStatus">
+                    <span class="status-dot"></span> MySQL Connected
+                </span>
+                
+                <div id="authProfileSection" class="profile-section" style="display: none;">
+                    <div class="profile-chip">
+                        <span class="avatar" id="userAvatar">A</span>
+                        <div class="user-meta">
+                            <span class="user-name" id="profileName">Student Name</span>
+                            <span class="user-dept" id="profileDept">Computer Science</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnHistory">⏱ History</button>
+                    <button class="btn btn-outline-danger btn-sm" id="btnLogout">Sign Out</button>
+                </div>
+
+                <div id="authGuestSection">
+                    <button class="btn btn-primary btn-sm" id="btnOpenLogin">Sign In / Register</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+        <!-- Guest Welcome Hero (Shown if not logged in) -->
+        <section id="guestHero" class="hero-banner" style="display: none;">
+            <div class="hero-content">
+                <span class="hero-badge">🎓 Collaborative Student Platform</span>
+                <h2>Focus Better, Together.</h2>
+                <p>Join virtual study rooms with your peers, share learning resources, and track your focus hours with real-time synchronized timers.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" id="btnHeroLogin">Get Started Now</button>
+                    <button class="btn btn-secondary btn-lg" id="btnHeroDemo">Try Demo Account</button>
+                </div>
+            </div>
+            <div class="hero-stats-card">
+                <div class="mini-stat">
+                    <span class="stat-num">100%</span>
+                    <span class="stat-label">Live Sync</span>
+                </div>
+                <div class="mini-stat">
+                    <span class="stat-num">JDBC</span>
+                    <span class="stat-label">MySQL Powered</span>
+                </div>
+                <div class="mini-stat">
+                    <span class="stat-num">BCrypt</span>
+                    <span class="stat-label">Secure Auth</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Authenticated Dashboard -->
+        <div id="dashboardSection">
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-tab="tabBrowse">
+                    🔍 Browse & Join Rooms
+                </button>
+                <button class="tab-btn" data-tab="tabMyRooms">
+                    📚 My Active Rooms <span class="badge-count" id="myRoomsBadge">0</span>
+                </button>
+                <button class="tab-btn" data-tab="tabCreate">
+                    ➕ Create Study Room
+                </button>
+                <button class="tab-btn" data-tab="tabHistory">
+                    ⏱ Study History & Stats
+                </button>
+            </nav>
+
+            <!-- TAB 1: Browse Rooms -->
+            <div id="tabBrowse" class="tab-content active">
+                <div class="filter-card">
+                    <div class="filter-inputs">
+                        <div class="input-group">
+                            <label for="filterSubject">Subject / Course</label>
+                            <input type="text" id="filterSubject" placeholder="e.g. Computer Science, Math...">
+                        </div>
+                        <div class="input-group">
+                            <label for="filterExam">Target Exam</label>
+                            <input type="text" id="filterExam" placeholder="e.g. Midterm, Semester End...">
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-primary" id="btnSearchRooms">Search</button>
+                            <button class="btn btn-secondary" id="btnResetFilter">Reset</button>
+                            <button class="btn btn-secondary" id="btnRefreshBrowse">🔄 Refresh</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rooms-grid" id="browseRoomsGrid">
+                    <!-- Dynamic Room Cards inserted here -->
+                </div>
+            </div>
+
+            <!-- TAB 2: My Rooms -->
+            <div id="tabMyRooms" class="tab-content">
+                <div class="tab-header">
+                    <div>
+                        <h3>My Joined Study Rooms</h3>
+                        <p class="text-muted">Virtual rooms where you are currently an active member.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="btnRefreshMyRooms">🔄 Refresh</button>
+                </div>
+                <div class="rooms-grid" id="myRoomsGrid">
+                    <!-- Dynamic My Room Cards -->
+                </div>
+            </div>
+
+            <!-- TAB 3: Create Room -->
+            <div id="tabCreate" class="tab-content">
+                <div class="form-card max-w-xl">
+                    <div class="form-header">
+                        <h3>Create a New Virtual Study Room</h3>
+                        <p class="text-muted">Set up a focused group environment for your course or exam.</p>
+                    </div>
+
+                    <form id="createRoomForm">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="createRoomName">Room Title *</label>
+                                <input type="text" id="createRoomName" required placeholder="e.g. Operating Systems Sync Sprint">
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="input-group">
+                                <label for="createSubject">Subject / Major *</label>
+                                <input type="text" id="createSubject" required placeholder="e.g. Computer Science">
+                            </div>
+                            <div class="input-group">
+                                <label for="createExam">Target Examination *</label>
+                                <input type="text" id="createExam" required placeholder="e.g. Semester End Exam 2026">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="createCapacity">Max Participants (2 to 50): <strong id="capacityVal">8</strong></label>
+                                <input type="range" id="createCapacity" min="2" max="50" value="8" oninput="document.getElementById('capacityVal').innerText = this.value">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="createDesc">Room Goal & Topic Description</label>
+                                <textarea id="createDesc" rows="3" placeholder="Explain what topics your study group is tackling..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">🚀 Create & Enter Room</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 4: Study History -->
+            <div id="tabHistory" class="tab-content">
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div>
+                            <span class="stat-sub">Total Focused Study Time</span>
+                            <h3 class="stat-headline" id="statsTotalTime">0 hr 0 min</h3>
+                            <span class="stat-detail" id="statsTotalMins">0 total minutes recorded</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div>
+                            <span class="stat-sub">Completed Study Sessions</span>
+                            <h3 class="stat-headline" id="statsTotalSessions">0 Sessions</h3>
+                            <span class="stat-detail">Persistent MySQL records</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card table-card">
+                    <div class="card-header">
+                        <h4>Session Breakdown</h4>
+                        <button class="btn btn-secondary btn-sm" id="btnRefreshHistory">🔄 Refresh</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Session ID</th>
+                                    <th>Study Room</th>
+                                    <th>Subject</th>
+                                    <th>Host / Initiator</th>
+                                    <th>Start Time</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LIVE STUDY ROOM MODAL / OVERLAY VIEW -->
+    <div id="roomModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-room">
+            <!-- Room Top Header -->
+            <div class="room-view-header">
+                <div class="room-title-area">
+                    <div class="room-tags">
+                        <span class="badge badge-primary" id="modalSubject">Subject</span>
+                        <span class="badge badge-accent" id="modalExam">Exam</span>
+                        <span class="badge badge-status" id="modalStatus">OPEN</span>
+                    </div>
+                    <h2 id="modalRoomTitle">Room Title</h2>
+                    <p class="text-muted" id="modalRoomMeta">Hosted by Creator • Capacity: 4/10</p>
+                </div>
+                <div class="room-header-actions">
+                    <button class="btn btn-secondary btn-sm" id="btnModalRefresh">🔄 Refresh</button>
+                    <button class="btn btn-outline-danger btn-sm" id="btnModalCloseRoom" style="display: none;">Close Room</button>
+                    <button class="btn btn-secondary btn-sm" id="btnModalLeave">🏃 Leave Room</button>
+                    <button class="btn btn-icon" id="btnModalExit">✕</button>
+                </div>
+            </div>
+
+            <!-- Room Grid -->
+            <div class="room-view-grid">
+                <!-- Left: Timer & Resources -->
+                <div class="room-col-main">
+                    <!-- SHARED TIMER CARD -->
+                    <div class="card timer-card">
+                        <div class="timer-header">
+                            <span class="timer-title">⏱ Shared Focus Study Session</span>
+                            <span class="live-pulse" id="timerPulse" style="display: none;">● LIVE SESSION</span>
+                        </div>
+
+                        <div class="timer-display" id="timerClock">00:00:00</div>
+                        <p class="timer-status-text" id="timerStatusText">No active study session in this room.</p>
+
+                        <div class="timer-controls">
+                            <button class="btn btn-success btn-lg" id="btnStartSession">▶ Start Focus Session</button>
+                            <button class="btn btn-danger btn-lg" id="btnStopSession" disabled>⏹ End Session</button>
+                        </div>
+                    </div>
+
+                    <!-- RESOURCES CARD -->
+                    <div class="card resources-card">
+                        <div class="card-header">
+                            <h4>📁 Shared Learning Resources & Materials</h4>
+                        </div>
+
+                        <!-- Share resource form -->
+                        <form id="shareResourceForm" class="resource-form">
+                            <input type="text" id="resTitle" placeholder="Resource Title (e.g. Cheat Sheet)" required>
+                            <input type="url" id="resLink" placeholder="https://example.com/notes" required>
+                            <button type="submit" class="btn btn-primary">Share</button>
+                        </form>
+
+                        <!-- Resources List -->
+                        <div class="resources-list" id="resourcesList">
+                            <!-- Dynamic resource items -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Active Room Members -->
+                <div class="room-col-side">
+                    <div class="card members-card">
+                        <div class="card-header">
+                            <h4>👥 Active Members (<span id="modalActiveCount">0</span>)</h4>
+                        </div>
+                        <div class="members-list" id="membersList">
+                            <!-- Dynamic members list -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTHENTICATION MODAL (Login & Register) -->
+    <div id="authModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-auth">
+            <button class="btn btn-icon modal-close" id="btnAuthClose">✕</button>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tabLoginBtn">Sign In</button>
+                <button class="auth-tab-btn" id="tabRegisterBtn">Create Account</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginFormContainer" class="auth-form-body">
+                <h3 class="auth-heading">Welcome Back</h3>
+                <p class="text-muted auth-sub">Enter your student credentials to log in.</p>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" required placeholder="alice@university.edu">
+                    </div>
+                    <div class="input-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In</button>
+                </form>
+
+                <div class="demo-logins">
+                    <p class="demo-label">Quick Test Accounts (Click to autofill):</p>
+                    <div class="demo-pills">
+                        <button class="pill-btn" onclick="autofillLogin('alice@university.edu', 'Password@123')">Alice (CS Yr 3)</button>
+                        <button class="pill-btn" onclick="autofillLogin('bob@university.edu', 'Password@123')">Bob (IT Yr 2)</button>
+                        <button class="pill-btn" onclick="autofillLogin('charlie@university.edu', 'Password@123')">Charlie (ECE Yr 4)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="registerFormContainer" class="auth-form-body" style="display: none;">
+                <h3 class="auth-heading">Join FocusRoom</h3>
+                <p class="text-muted auth-sub">Collaborate with fellow students in focused study rooms.</p>
+
+                <form id="registerForm">
+                    <div class="input-group">
+                        <label for="regName">Full Name *</label>
+                        <input type="text" id="regName" required placeholder="Jane Doe">
+                    </div>
+                    <div class="input-group">
+                        <label for="regEmail">Email Address *</label>
+                        <input type="email" id="regEmail" required placeholder="jane.doe@university.edu">
+                    </div>
+                    <div class="input-group">
+                        <label for="regPassword">Password (min 6 chars) *</label>
+                        <input type="password" id="regPassword" required minlength="6" placeholder="••••••••">
+                    </div>
+                    <div class="form-row-2">
+                        <div class="input-group">
+                            <label for="regDept">Department *</label>
+                            <select id="regDept" required>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics & Communication">Electronics & Comm</option>
+                                <option value="Electrical & Electronics">Electrical & Electronics</option>
+                                <option value="Mechanical Engineering">Mechanical Eng</option>
+                                <option value="Civil Engineering">Civil Eng</option>
+                                <option value="Data Science & AI">Data Science & AI</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="regYear">Year of Study *</label>
+                            <select id="regYear" required>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3" selected>3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="5">5th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
